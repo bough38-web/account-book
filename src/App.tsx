@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import BottomNav from './components/common/BottomNav'
 import './App.css'
 
 import { SpendingChart } from './components/charts/SpendingChart'
 import { DailyBarChart } from './components/charts/DailyBarChart'
+import { CategoryPieChart } from './components/charts/CategoryPieChart'
 import { SmsSync } from './pages/SmsSync'
 import { McpVisualizer } from './pages/McpVisualizer'
 import { TransactionList } from './components/TransactionList'
 import { DashboardSkeleton } from './components/common/Skeleton'
-import { Utensils, Coffee, ShoppingBag, Car, MoreHorizontal } from 'lucide-react'
+import { Utensils, Coffee, ShoppingBag, Car, MoreHorizontal, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 
 export interface Transaction {
   id: number;
@@ -30,9 +32,24 @@ const INITIAL_TRANSACTIONS: Transaction[] = [
 
 function App() {
   const [activeTab, setActiveTab] = useState('home')
-  const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS)
+  const [transactions, setTransactions] = useState<Transaction[]>(() => {
+    const saved = localStorage.getItem('account-book-txs');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return parsed.map((tx: any) => ({ ...tx, icon: MoreHorizontal }));
+      } catch (e) {
+        return INITIAL_TRANSACTIONS;
+      }
+    }
+    return INITIAL_TRANSACTIONS;
+  });
   const [isLoading, setIsLoading] = useState(true)
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null)
+
+  useEffect(() => {
+    localStorage.setItem('account-book-txs', JSON.stringify(transactions));
+  }, [transactions]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1500)
@@ -52,7 +69,7 @@ function App() {
   };
 
   const handleDeleteTransaction = (id: number) => {
-    if (confirm('정말 삭제하시겠습니까?')) {
+    if (window.confirm('정말 삭제하시겠습니까?')) {
       setTransactions(transactions.filter(tx => tx.id !== id));
     }
   };
@@ -74,63 +91,93 @@ function App() {
 
   return (
     <main className="app-container">
-      <div className="fade-in">
-        {activeTab === 'home' && (
-          isLoading ? <DashboardSkeleton /> : (
-          <div className="dashboard-view">
-            <header className="page-header">
-              <h1>가계부 Pro</h1>
-              <p className="text-muted">안녕하세요, 오늘도 스마트한 자산관리!</p>
-            </header>
-            
-            <section className="summary-cards">
-              <div className="glass-card main-balance">
-                <span className="card-label">총 자산</span>
-                <h2 className="balance-amount">₩{totalBalance.toLocaleString()}</h2>
-              </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.2 }}
+          style={{ paddingBottom: '100px' }}
+        >
+          {activeTab === 'home' && (
+            isLoading ? <DashboardSkeleton /> : (
+            <div className="dashboard-view fade-in">
+              <header className="page-header">
+                <h1>가계부 Pro</h1>
+                <p className="text-muted">안녕하세요, 오늘도 스마트한 자산관리!</p>
+              </header>
               
-              <div className="stats-grid">
-                <div className="glass-card stat-item">
-                  <span className="stat-label">이번 달 수입</span>
-                  <span className="stat-value income">+₩{monthlyIncome.toLocaleString()}</span>
+              <section className="summary-cards">
+                <div className="glass-card main-balance">
+                  <span className="card-label">총 자산</span>
+                  <h2 className="balance-amount">₩{totalBalance.toLocaleString()}</h2>
                 </div>
-                <div className="glass-card stat-item">
-                  <span className="stat-label">이번 달 지출</span>
-                  <span className="stat-value expense">-₩{monthlyExpense.toLocaleString()}</span>
+                
+                <div className="stats-grid">
+                  <div className="glass-card stat-item">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--primary)', marginBottom: '4px' }}>
+                      <ArrowUpRight size={14} />
+                      <span className="stat-label">이번 달 수입</span>
+                    </div>
+                    <span className="stat-value income">+₩{monthlyIncome.toLocaleString()}</span>
+                  </div>
+                  <div className="glass-card stat-item">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--expense)', marginBottom: '4px' }}>
+                      <ArrowDownRight size={14} />
+                      <span className="stat-label">이번 달 지출</span>
+                    </div>
+                    <span className="stat-value expense">-₩{monthlyExpense.toLocaleString()}</span>
+                  </div>
                 </div>
-              </div>
-            </section>
-          </div>
-          )
-        )}
-        
-        {activeTab === 'history' && (
-          <TransactionList 
-            transactions={transactions} 
-            onDelete={handleDeleteTransaction}
-            onEdit={startEditing}
-          />
-        )}
-        {activeTab === 'sync' && (
-          <SmsSync 
-            onAdd={handleAddTransaction} 
-            onUpdate={handleUpdateTransaction}
-            editData={editingTransaction}
-          />
-        )}
-        {activeTab === 'stats' && (
-          <div className="stats-view fade-in">
-            <header className="page-header">
-              <h1>소비 분석</h1>
-              <p className="text-muted">나의 소비 패턴을 분석합니다.</p>
-            </header>
-            <SpendingChart transactions={transactions} />
-            <DailyBarChart />
-          </div>
-        )}
-        {activeTab === 'mcp' && <McpVisualizer />}
-      </div>
+              </section>
 
+              <section style={{ marginTop: '24px' }}>
+                <h3 style={{ marginBottom: '16px', fontSize: '16px' }}>소비 트렌드</h3>
+                <SpendingChart transactions={transactions} />
+              </section>
+            </div>
+            )
+          )}
+          
+          {activeTab === 'history' && (
+            <div className="fade-in">
+              <TransactionList 
+                transactions={transactions} 
+                onDelete={handleDeleteTransaction}
+                onEdit={startEditing}
+              />
+            </div>
+          )}
+          
+          {activeTab === 'sync' && (
+            <div className="fade-in">
+              <SmsSync 
+                onAdd={handleAddTransaction} 
+                onUpdate={handleUpdateTransaction}
+                editData={editingTransaction}
+              />
+            </div>
+          )}
+          
+          {activeTab === 'stats' && (
+            <div className="stats-view fade-in">
+              <header className="page-header">
+                <h1>소비 분석</h1>
+                <p className="text-muted">다양한 관점으로 나의 소비를 파악하세요.</p>
+              </header>
+              <section style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '24px' }}>
+                <CategoryPieChart transactions={transactions} />
+                <DailyBarChart transactions={transactions} />
+                <SpendingChart transactions={transactions} />
+              </section>
+            </div>
+          )}
+          
+          {activeTab === 'mcp' && <McpVisualizer />}
+        </motion.div>
+      </AnimatePresence>
+      
       <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
     </main>
   )

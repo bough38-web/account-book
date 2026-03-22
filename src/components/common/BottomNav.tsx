@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, List, PieChart, Activity, Plus } from 'lucide-react';
+import { Home, List, PieChart, Cpu, Plus } from 'lucide-react';
 import './BottomNav.css';
 
 interface NavItemProps {
@@ -25,33 +25,36 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab }) => {
   return (
     <nav className="bottom-nav glass">
       <NavItem 
-        icon={<Home size={22} />} 
+        icon={<Home size={24} />} 
         label="홈" 
         active={activeTab === 'home'} 
-        onClick={() => setActiveTab('home')}
+        onClick={() => setActiveTab('home')} 
       />
       <NavItem 
-        icon={<List size={22} />} 
+        icon={<List size={24} />} 
         label="내역" 
         active={activeTab === 'history'} 
-        onClick={() => setActiveTab('history')}
+        onClick={() => setActiveTab('history')} 
       />
       
-      <button className="nav-plus-btn" onClick={() => setActiveTab('sync')}>
-        <Plus size={32} color="white" />
-      </button>
+      <div className="nav-item central-btn" onClick={() => setActiveTab('sync')}>
+        <div className="plus-btn-inner">
+          <Plus size={32} color="white" />
+        </div>
+        <span className="nav-label">추가</span>
+      </div>
 
       <NavItem 
-        icon={<PieChart size={22} />} 
+        icon={<PieChart size={24} />} 
         label="통계" 
         active={activeTab === 'stats'} 
-        onClick={() => setActiveTab('stats')}
+        onClick={() => setActiveTab('stats')} 
       />
       <NavItem 
-        icon={<Activity size={22} />} 
-        label="MCP" 
+        icon={<Cpu size={24} />} 
+        label="분석" 
         active={activeTab === 'mcp'} 
-        onClick={() => setActiveTab('mcp')}
+        onClick={() => setActiveTab('mcp')} 
       />
     </nav>
   );

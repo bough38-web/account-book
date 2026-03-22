@@ -1,22 +1,28 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
-const data = [
-  { day: '월', amount: 45000 },
-  { day: '화', amount: 52000 },
-  { day: '수', amount: 38000 },
-  { day: '목', amount: 65000 },
-  { day: '금', amount: 48000 },
-  { day: '토', amount: 85000 },
-  { day: '일', amount: 72000 },
-];
+export const DailyBarChart: React.FC<{ transactions: any[] }> = ({ transactions }) => {
+  const days = ['일', '월', '화', '수', '목', '금', '토'];
+  const today = new Date();
+  
+  const chartData = Array.from({ length: 7 }).map((_, i) => {
+    const d = new Date(today);
+    d.setDate(d.getDate() - (6 - i));
+    const dayName = days[d.getDay()];
+    const dateStr = `${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getDate().toString().padStart(2, '0')}`;
+    
+    const dailySum = Math.abs(transactions
+      .filter(tx => tx.date === dateStr && tx.amount < 0)
+      .reduce((acc, tx) => acc + tx.amount, 0));
+      
+    return { day: dayName, amount: dailySum };
+  });
 
-export const DailyBarChart: React.FC = () => {
   return (
     <div className="chart-container glass-card" style={{ marginTop: '16px', height: '250px' }}>
-      <h3 className="section-title">일별 지출 추이</h3>
+      <h3 className="section-title">최근 7일 지출 추이</h3>
       <ResponsiveContainer width="100%" height="80%">
-        <BarChart data={data}>
+        <BarChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
           <XAxis 
             dataKey="day" 
@@ -33,12 +39,13 @@ export const DailyBarChart: React.FC = () => {
               border: '1px solid rgba(255, 255, 255, 0.1)',
               color: '#fff'
             }} 
+            formatter={(value) => [`${value?.toLocaleString() || '0'}원`, '지출']}
           />
           <Bar dataKey="amount" radius={[6, 6, 0, 0]}>
-            {data.map((entry, index) => (
+            {chartData.map((entry, index) => (
               <Cell 
                 key={`cell-${index}`} 
-                fill={entry.amount > 60000 ? 'var(--accent)' : 'var(--primary)'} 
+                fill={entry.amount > 50000 ? '#f43f5e' : 'var(--primary)'} 
               />
             ))}
           </Bar>
