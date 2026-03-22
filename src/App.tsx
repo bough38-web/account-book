@@ -32,6 +32,7 @@ function App() {
   const [activeTab, setActiveTab] = useState('home')
   const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS)
   const [isLoading, setIsLoading] = useState(true)
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null)
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1500)
@@ -42,11 +43,29 @@ function App() {
     const tx: Transaction = {
       ...newTx,
       id: Date.now(),
-      icon: MoreHorizontal, // Default icon for manual/SMS entries
-      color: '#6366f1' // Default color
+      icon: MoreHorizontal,
+      color: (newTx as any).color || '#6366f1'
     };
     setTransactions([tx, ...transactions]);
-    setActiveTab('history'); // Go to list view to show the new entry
+    setEditingTransaction(null);
+    setActiveTab('history');
+  };
+
+  const handleDeleteTransaction = (id: number) => {
+    if (confirm('정말 삭제하시겠습니까?')) {
+      setTransactions(transactions.filter(tx => tx.id !== id));
+    }
+  };
+
+  const handleUpdateTransaction = (updatedTx: Transaction) => {
+    setTransactions(transactions.map(tx => tx.id === updatedTx.id ? updatedTx : tx));
+    setEditingTransaction(null);
+    setActiveTab('history');
+  };
+
+  const startEditing = (tx: Transaction) => {
+    setEditingTransaction(tx);
+    setActiveTab('sync');
   };
 
   const totalBalance = transactions.reduce((acc, tx) => acc + tx.amount, 0);
@@ -85,8 +104,20 @@ function App() {
           )
         )}
         
-        {activeTab === 'history' && <TransactionList transactions={transactions} />}
-        {activeTab === 'sync' && <SmsSync onAdd={handleAddTransaction} />}
+        {activeTab === 'history' && (
+          <TransactionList 
+            transactions={transactions} 
+            onDelete={handleDeleteTransaction}
+            onEdit={startEditing}
+          />
+        )}
+        {activeTab === 'sync' && (
+          <SmsSync 
+            onAdd={handleAddTransaction} 
+            onUpdate={handleUpdateTransaction}
+            editData={editingTransaction}
+          />
+        )}
         {activeTab === 'stats' && (
           <div className="stats-view fade-in">
             <header className="page-header">

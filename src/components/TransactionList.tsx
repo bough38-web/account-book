@@ -1,9 +1,16 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Trash2, Edit2 } from 'lucide-react';
 
 import type { Transaction } from '../App';
 
-export const TransactionList: React.FC<{ transactions: Transaction[] }> = ({ transactions }) => {
+export interface TransactionListProps {
+  transactions: Transaction[];
+  onDelete: (id: number) => void;
+  onEdit: (tx: Transaction) => void;
+}
+
+export const TransactionList: React.FC<TransactionListProps> = ({ transactions, onDelete, onEdit }) => {
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -63,6 +70,34 @@ export const TransactionList: React.FC<{ transactions: Transaction[] }> = ({ tra
               }}>
                 {tx.amount > 0 ? '+' : ''}{tx.amount.toLocaleString()}원
               </span>
+            </div>
+            <div style={{ display: 'flex', gap: '4px', marginLeft: '8px' }}>
+              <button 
+                onClick={() => onEdit(tx)}
+                style={{ 
+                  background: 'rgba(99, 102, 241, 0.1)', 
+                  border: 'none', 
+                  padding: '8px', 
+                  borderRadius: '8px',
+                  color: 'var(--primary)',
+                  cursor: 'pointer'
+                }}
+              >
+                <Edit2 size={16} />
+              </button>
+              <button 
+                onClick={() => onDelete(tx.id)}
+                style={{ 
+                  background: 'rgba(239, 68, 68, 0.1)', 
+                  border: 'none', 
+                  padding: '8px', 
+                  borderRadius: '8px',
+                  color: 'var(--expense)',
+                  cursor: 'pointer'
+                }}
+              >
+                <Trash2 size={16} />
+              </button>
             </div>
           </motion.div>
         ))}
