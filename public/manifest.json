@@ -1,0 +1,16 @@
+{
+  "name": "가계부 Pro",
+  "short_name": "가계부",
+  "description": "Premium AI Household Account Book",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#6366f1",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
