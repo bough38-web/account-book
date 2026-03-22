@@ -39,7 +39,7 @@ function App() {
       color: '#6366f1' // Default color
     };
     setTransactions([tx, ...transactions]);
-    setActiveTab('stats'); // Go to list view to show the new entry
+    setActiveTab('history'); // Go to list view to show the new entry
   };
 
   const totalBalance = transactions.reduce((acc, tx) => acc + tx.amount, 0);
