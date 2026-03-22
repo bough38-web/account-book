@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import BottomNav from './components/common/BottomNav'
 import './App.css'
 
@@ -7,6 +7,7 @@ import { DailyBarChart } from './components/charts/DailyBarChart'
 import { SmsSync } from './pages/SmsSync'
 import { McpVisualizer } from './pages/McpVisualizer'
 import { TransactionList } from './components/TransactionList'
+import { DashboardSkeleton } from './components/common/Skeleton'
 import { Utensils, Coffee, ShoppingBag, Car, MoreHorizontal } from 'lucide-react'
 
 export interface Transaction {
@@ -30,6 +31,12 @@ const INITIAL_TRANSACTIONS: Transaction[] = [
 function App() {
   const [activeTab, setActiveTab] = useState('home')
   const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1500)
+    return () => clearTimeout(timer)
+  }, [])
 
   const handleAddTransaction = (newTx: Omit<Transaction, 'id' | 'icon' | 'color'>) => {
     const tx: Transaction = {
@@ -50,6 +57,7 @@ function App() {
     <main className="app-container">
       <div className="fade-in">
         {activeTab === 'home' && (
+          isLoading ? <DashboardSkeleton /> : (
           <div className="dashboard-view">
             <header className="page-header">
               <h1>가계부 Pro</h1>
@@ -74,6 +82,7 @@ function App() {
               </div>
             </section>
           </div>
+          )
         )}
         
         {activeTab === 'history' && <TransactionList transactions={transactions} />}

@@ -7,15 +7,27 @@ export const SmsSync: React.FC<{ onAdd: (tx: any) => void }> = ({ onAdd }) => {
   const [inputText, setInputText] = useState('');
   const [result, setResult] = useState<ParsedSMS | null>(null);
   const [error, setError] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('식비');
+
+  const categories = [
+    { name: '식비', color: '#6366f1' },
+    { name: '카페', color: '#f59e0b' },
+    { name: '쇼핑', color: '#ec4899' },
+    { name: '교통', color: '#a855f7' },
+    { name: '기타', color: '#94a3b8' },
+  ];
 
   const handleAdd = () => {
     if (result) {
       onAdd({
         date: result.date,
         merchant: result.merchant,
-        amount: -result.amount, // Spending is negative
-        category: '기타' // Default category for SMS
+        amount: -result.amount,
+        category: selectedCategory,
+        color: categories.find(c => c.name === selectedCategory)?.color || '#6366f1'
       });
+      setInputText('');
+      setResult(null);
     }
   };
 
@@ -104,6 +116,31 @@ export const SmsSync: React.FC<{ onAdd: (tx: any) => void }> = ({ onAdd }) => {
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span className="text-muted">일시</span>
               <span>{result.date} {result.time}</span>
+            </div>
+            
+            <div style={{ marginTop: '12px' }}>
+              <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '8px' }}>카테고리 선택</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {categories.map((cat) => (
+                  <button
+                    key={cat.name}
+                    onClick={() => setSelectedCategory(cat.name)}
+                    style={{
+                      padding: '6px 12px',
+                      borderRadius: '20px',
+                      fontSize: '11px',
+                      border: '1px solid',
+                      borderColor: selectedCategory === cat.name ? cat.color : 'var(--glass-border)',
+                      background: selectedCategory === cat.name ? `${cat.color}22` : 'transparent',
+                      color: selectedCategory === cat.name ? cat.color : 'white',
+                      transition: 'all 0.2s',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
           <button 

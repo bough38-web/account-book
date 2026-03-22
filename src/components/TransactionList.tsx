@@ -1,8 +1,24 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 import type { Transaction } from '../App';
 
 export const TransactionList: React.FC<{ transactions: Transaction[] }> = ({ transactions }) => {
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
   return (
     <div className="transaction-list-view fade-in">
       <header className="page-header">
@@ -10,9 +26,19 @@ export const TransactionList: React.FC<{ transactions: Transaction[] }> = ({ tra
         <p className="text-muted">최근 7일간의 거래 기록입니다.</p>
       </header>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '24px' }}>
+      <motion.div 
+        variants={container}
+        initial="hidden"
+        animate="show"
+        style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '24px' }}
+      >
         {transactions.map((tx) => (
-          <div key={tx.id} className="glass-card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <motion.div 
+            key={tx.id} 
+            variants={item}
+            className="glass-card" 
+            style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}
+          >
             <div style={{ 
               width: '44px', 
               height: '44px', 
@@ -38,9 +64,9 @@ export const TransactionList: React.FC<{ transactions: Transaction[] }> = ({ tra
                 {tx.amount > 0 ? '+' : ''}{tx.amount.toLocaleString()}원
               </span>
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 };
