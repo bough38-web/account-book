@@ -37,7 +37,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab }) => {
         onClick={() => setActiveTab('list')}
       />
       
-      <button className="nav-plus-btn">
+      <button className="nav-plus-btn" onClick={() => setActiveTab('list')}>
         <Plus size={32} color="white" />
       </button>
 
