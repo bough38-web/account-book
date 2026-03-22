@@ -72,15 +72,22 @@ function App() {
                   <span className="stat-value expense">-₩{monthlyExpense.toLocaleString()}</span>
                 </div>
               </div>
-
-              <SpendingChart transactions={transactions} />
-              <DailyBarChart />
             </section>
           </div>
         )}
         
-        {activeTab === 'list' && <SmsSync onAdd={handleAddTransaction} />}
-        {activeTab === 'stats' && <TransactionList transactions={transactions} />}
+        {activeTab === 'history' && <TransactionList transactions={transactions} />}
+        {activeTab === 'sync' && <SmsSync onAdd={handleAddTransaction} />}
+        {activeTab === 'stats' && (
+          <div className="stats-view fade-in">
+            <header className="page-header">
+              <h1>소비 분석</h1>
+              <p className="text-muted">나의 소비 패턴을 분석합니다.</p>
+            </header>
+            <SpendingChart transactions={transactions} />
+            <DailyBarChart />
+          </div>
+        )}
         {activeTab === 'mcp' && <McpVisualizer />}
       </div>
 

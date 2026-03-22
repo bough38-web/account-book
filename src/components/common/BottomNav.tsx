@@ -33,11 +33,11 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab }) => {
       <NavItem 
         icon={<List size={22} />} 
         label="내역" 
-        active={activeTab === 'list'} 
-        onClick={() => setActiveTab('list')}
+        active={activeTab === 'history'} 
+        onClick={() => setActiveTab('history')}
       />
       
-      <button className="nav-plus-btn" onClick={() => setActiveTab('list')}>
+      <button className="nav-plus-btn" onClick={() => setActiveTab('sync')}>
         <Plus size={32} color="white" />
       </button>
 
